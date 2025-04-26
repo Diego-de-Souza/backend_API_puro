@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../../../../db');
+const sequelize = require('../../../connection/sequelize');
 const PasswordService = require('../../../../application/security/passwordService');
 
 const User = sequelize.define('User', {
@@ -16,6 +16,9 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
+    validate: {
+      isEmail: true
+    }
   },
   password: {
     type: DataTypes.STRING,
@@ -24,12 +27,16 @@ const User = sequelize.define('User', {
 }, {
   hooks: {
     beforeCreate: async (user) => {
-      if (user.password) {
+      const passwordService = new PasswordService();
+      user.password = await passwordService.hashPassword(user.password);
+    },
+    beforeUpdate: async (user) => {
+      if (user.changed('password')) {
         const passwordService = new PasswordService();
         user.password = await passwordService.hashPassword(user.password);
       }
-    },
-  },
+    }
+  }
 });
 
 module.exports = User;

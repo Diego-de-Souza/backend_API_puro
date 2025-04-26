@@ -1,5 +1,33 @@
+# Dependências
 node_modules/
-.env
-.DS_Store
+
+# Build
 dist/
+build/
+
+# Configurações sensíveis
+.env
+.env.local
+.env.*.local
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Logs
 *.log
+logs/
+npm-debug.log*
+
+# IDEs e editores
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Banco de dados local (se usar SQLite, por exemplo)
+*.sqlite
+*.sqlite3
+
+# Caches
+.cache/

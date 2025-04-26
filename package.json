@@ -4,7 +4,8 @@
   "description": "projeto de treino das habilidade de criação de API com express, utilizando swagger para doc e Jest para test",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/app.js"
   },
   "author": "Diego de Souza Lima",
   "license": "ISC",

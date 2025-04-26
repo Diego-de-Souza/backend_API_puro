@@ -17,7 +17,8 @@ const options = {
     },
     apis: [
       path.join(__dirname, '../../infra/adapters/controller/*.js'), // Caminho corrigido
-      path.join(__dirname, '../../application/**/*.js') // Para documentar services também
+      path.join(__dirname, '../../application/**/*.js'), // Para documentar services também
+      path.join(__dirname, '../../docs/schemas/*.yaml')
     ]
 };
 

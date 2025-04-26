@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const swaggerUi = require('swagger-ui-express');
 const { specs } = require('./infra/config/swagger.config');
-const sequelize = require('./infra/conection/sequelize');
+const sequelize = require('./infra/connection/sequelize');
 
 const { createUserController } = require('./application/factories/userFactory');
 
@@ -20,6 +20,7 @@ async function appInit() {
 
   try {
     await sequelize.authenticate();
+    await sequelize.sync({ force: false });
     console.log('Conexão com o banco estabelecida');
 
     app.get('/', (req, res) => res.send('API rodando!'));

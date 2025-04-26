@@ -1,8 +1,8 @@
-const { isEmailValid, isPasswordStrong } = require('./validations/userValidations');
+const { ValidationError } = require('sequelize');
+const { isEmailValid, isPasswordStrong } = require('../infra/adapters/validations/userValidations');
 
 class User {
   constructor(id, name, email, password) {
-    this.id = id;
     this.name = name;
     this.email = email;
     this.password = password;
@@ -11,13 +11,25 @@ class User {
   }
 
   validate() {
+    if (!this.name || this.name.trim().length < 3) {
+      throw new ValidationError('Erro de validação no name','Nome deve ter pelo menos 3 caracteres');
+    }
+    
     if (!isEmailValid(this.email)) {
-      throw new Error('Email inválido');
+      throw new ValidationError('Erro de validação no email','Email inválido');
     }
     
     if (!isPasswordStrong(this.password)) {
-      throw new Error('Senha precisa ter 8+ caracteres, maiúsculas e números');
+      throw new ValidationError('Erro de validação na senha','Senha deve ter 8+ caracteres, incluindo maiúsculas e números');
     }
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+      email: this.email
+    };
   }
 }
 

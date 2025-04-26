@@ -1,0 +1,35 @@
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          example: Maria Souza
+        email:
+          type: string
+          format: email
+          example: maria@example.com
+        password:
+          type: string
+          format: password
+          example: SenhaForte123
+        isActive:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-04-24T15:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-04-24T15:00:00Z"
+      required:
+        - name
+        - email
+        - password
