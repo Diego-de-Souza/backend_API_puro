@@ -1,0 +1,22 @@
+{
+  "name": "backend_api_puro",
+  "version": "1.0.0",
+  "description": "projeto de treino das habilidade de criação de API com express, utilizando swagger para doc e Jest para test",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Diego de Souza Lima",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.14.0",
+    "sequelize": "^6.37.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui": "^5.21.0",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
