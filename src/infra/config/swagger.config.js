@@ -5,9 +5,14 @@ const options = {
     definition: {
       openapi: '3.0.0',
       info: {
-        title: 'Nome da Sua API',
+        title: 'API de usuários',
         version: '1.0.0',
-        description: 'Descrição da sua API',
+        description: 'APi desenvolvida com NodeJS e express seguindo a arquitetura hexagonal',
+        contact: {
+          name: 'Diego de Souza L.',
+          url: 'https://github.com/Diego-de-Souza/backend_API_puro',
+          email: 'diegodesouza.souza@gmail.com'
+        }
       },
       servers: [
         {
@@ -16,8 +21,8 @@ const options = {
       ],
     },
     apis: [
-      path.join(__dirname, '../../infra/adapters/controller/*.js'), // Caminho corrigido
-      path.join(__dirname, '../../application/**/*.js'), // Para documentar services também
+      path.join(__dirname, '../../infra/adapters/controller/*.js'), 
+      path.join(__dirname, '../../application/**/*.js'),
       path.join(__dirname, '../../docs/schemas/*.yaml')
     ]
 };
