@@ -5,7 +5,8 @@
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/app.js"
+    "start": "node src/app.js",
+    "debug": "nodemon --inspect src/app.js"
   },
   "author": "Diego de Souza Lima",
   "license": "ISC",
@@ -19,5 +20,8 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui": "^5.21.0",
     "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }

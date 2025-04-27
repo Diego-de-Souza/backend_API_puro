@@ -31,11 +31,14 @@ class UserRepository {
 
   async update(id, updates) {
     const [affectedRows] = await UserModel.update(updates, {
-      where: { id },
-      returning: true,
-      plain: true
+      where: { id }
     });
-    return affectedRows ? await this.findById(id) : null;
+  
+    if (affectedRows === 0) {
+      return null;
+    }
+  
+    return await this.findById(id);
   }
 
   async delete(id) {

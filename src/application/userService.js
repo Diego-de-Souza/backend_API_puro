@@ -26,11 +26,11 @@ class UserService {
     return this.userRepository.save(user);
   }
 
-  async login(email, password) {
-    const user = await this.userRepository.findByEmail(email);
+  async login(dataLogin) {
+    const user = await this.userRepository.findByEmail(dataLogin.email);
     if (!user) throw new NotFoundError('Credenciais inválidas', 'Não foi encontrado nenhum registro com o email informado');
 
-    const isValid = await this.passwordService.comparePassword(password, user.password);
+    const isValid = await this.passwordService.comparePassword(dataLogin.password, user.password);
     if (!isValid) throw new NotFoundError('Credenciais inválidas', 'A senha fornecida não confere com a cadastrada');
 
     const token = this.tokenService.generateToken({
@@ -47,12 +47,12 @@ class UserService {
   }
 
   async findAllUsers(){
-    const allUsers = await this.findAll();
+    const allUsers = await this.userRepository.findAll();
     if(!allUsers) throw new NotFoundError('Não encontrado', 'Não foi possível buscar os dados solicitados');
     return allUsers;
   }
 
-  async findbyId(user_id){
+  async findById(user_id){
     const user = await this.userRepository.findById(user_id);
     if(!user) throw new NotFoundError('Não encontrado', 'Não foi possível encontrar o registro com o id fornecido');
     return user;
@@ -69,9 +69,6 @@ class UserService {
     }
     
     if (userData.password) {
-      if (!isPasswordStrong(userData.password)) {
-        throw new Error('Senha deve ter 8+ caracteres, incluindo maiúsculas e números');
-      }
       userData.password = await this.passwordService.hashPassword(userData.password);
     }
 
@@ -87,7 +84,7 @@ class UserService {
 
   async deleteUser(user_id){
     const deletedUser = await this.userRepository.delete(user_id);
-    if(!deletedUser) throw new Error('Erro ao deletar o usuário especifico');
+    if(!deletedUser) throw new NotFoundError('Não encontrado', 'O usuário para ser removido não foi encontrado');
     return deletedUser;
   }
 }

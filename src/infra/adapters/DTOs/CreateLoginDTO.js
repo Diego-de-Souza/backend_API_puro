@@ -1,4 +1,4 @@
-const {isEmailValid} = require('../validations');
+const {isEmailValid} = require('../validations/userValidations');
 const ValidationError = require('../../../exceptions/ValidationError');
 
 class CreateLoginDTO {
@@ -19,3 +19,5 @@ class CreateLoginDTO {
         this.password = password;
     }
 }
+
+module.exports = CreateLoginDTO;

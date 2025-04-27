@@ -1,7 +1,7 @@
 const express = require('express');
-const CreateUserDTO = require('../DTOs')
 const ValidationError = require('../../../exceptions/ValidationError');
-const {CreateUserDTO, CreateLoginDTO} = require('../DTOs');
+const CreateUserDTO = require('../DTOs/CreateUserDTO');
+const CreateLoginDTO = require('../DTOs/CreateLoginDTO');
 
 /**
  * @swagger
@@ -14,6 +14,8 @@ class UserController {
     this.userService = userService;
     this.router = express.Router();
     this.initializeRoutes();
+    this.userDTO = CreateUserDTO;
+    this.loginDTO = CreateLoginDTO;
   }
 
   initializeRoutes() {
@@ -25,7 +27,7 @@ class UserController {
     this.router.delete('/:id', this.delete.bind(this));
   }
 
-  /**
+ /**
  * @swagger
  * /users:
  *   post:
@@ -63,8 +65,10 @@ class UserController {
  *               id: "123e4567-e89b-12d3-a456-426614174000"
  *               name: Maria Souza
  *               email: maria@example.com
+ *               createdAt: "2025-04-26T12:34:56.789Z"
+ *               updatedAt: "2025-04-26T12:34:56.789Z"
  *       400:
- *         description: Erro de validação
+ *         description: "Erro de validação"
  *         content:
  *           application/json:
  *             schema:
@@ -72,15 +76,35 @@ class UserController {
  *               properties:
  *                 error:
  *                   type: string
+ *                   example: "ValidationError"
+ *                 message:
+ *                   type: string
+ *                   example: "Campos obrigatórios faltando"
+ *                 details:
+ *                   type: object
+ *                   properties:
+ *                     invalidFields:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: ["email", "password"]
  *             examples:
  *               invalidEmail:
  *                 value:
- *                   error: "Email inválido"
+ *                   error: "ValidationError"
+ *                   message: "Formato de e-mail inválido"
+ *                   details:
+ *                     invalidFields:
+ *                       - "email"
  *               weakPassword:
  *                 value:
- *                   error: "Senha precisa ter 8+ caracteres, maiúsculas e números"
+ *                   error: "ValidationError"
+ *                   message: "Senha precisa ter 8+ caracteres, maiúsculas e números"
+ *                   details:
+ *                     invalidFields:
+ *                       - "password"
  *       409:
- *         description: Erro de validação
+ *         description: "Conflito de dados"
  *         content:
  *           application/json:
  *             schema:
@@ -88,19 +112,28 @@ class UserController {
  *               properties:
  *                 error:
  *                   type: string
+ *                   example: "ConflictError"
+ *                 message:
+ *                   type: string
+ *                   example: "Conflito de dados"
+ *                 details:
+ *                   type: string
+ *                   example: "O email já está registrado no banco"
  *             examples:
- *               invalidEmail:
+ *               emailConflict:
  *                 value:
- *                   error: "Email ja existente"
+ *                   error: "ConflictError"
+ *                   message: "Conflito de dados"
+ *                   details: "O email já está registrado no banco"
  *       500:
  *         description: Erro interno do servidor
  */
   async create(req, res) {
     try {
 
-      const CreateUserDTO = new CreateUserDTO(req.body);
+      const userDTO = new this.userDTO(req.body)
       
-      const user = await this.userService.createUser(CreateUserDTO);
+      const user = await this.userService.createUser(userDTO);
 
       res.status(201).json(user);
     } catch (error) {
@@ -112,7 +145,7 @@ class UserController {
     }
   }
 
-  /**
+ /**
  * @swagger
  * /users/login:
  *   post:
@@ -136,7 +169,7 @@ class UserController {
  *                 example: SenhaForte123
  *     responses:
  *       200:
- *         description: Login bem-sucedido
+ *         description: Login bem-sucedido, token gerado
  *         content:
  *           application/json:
  *             schema:
@@ -146,21 +179,47 @@ class UserController {
  *                   type: object
  *                   properties:
  *                     id:
- *                       type: integer
+ *                       type: string
+ *                       example: "123e4567-e89b-12d3-a456-426614174000"
  *                     name:
  *                       type: string
+ *                       example: Maria Souza
  *                     email:
  *                       type: string
+ *                       example: maria@example.com
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-04-26T12:34:56.789Z"
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-04-26T12:34:56.789Z"
  *                 token:
  *                   type: string
- *       401:
- *         description: Credenciais inválidas
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *       404:
+ *         description: Credenciais inválidas, usuário não encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "NotFoundError"
+ *                 message:
+ *                   type: string
+ *                   example: "Credenciais inválidas"
+ *                 details:
+ *                   type: string
+ *                   example: "Não foi encontrado nenhum registro com o email informado"
  */
   async login(req, res) {
     try {
-      const createLoginDTO = new CreateLoginDTO(req.body);
+      const loginDTO = new this.loginDTO(req.body);
 
-      const { user, token } = await this.userService.login(createLoginDTO);
+      const { user, token } = await this.userService.login(loginDTO);
 
       res.status(200).json({ user, token });
     } catch (error) {
@@ -178,12 +237,6 @@ class UserController {
    *   get:
    *     summary: Busca todos os usuarios cadastrados
    *     tags: [Users]
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/User'
    *     responses:
    *       200:
    *         description: Usuarios encontrados com sucesso
@@ -234,15 +287,24 @@ class UserController {
  *               id: "550e8400-e29b-41d4-a716-446655440000"
  *               name: "João Silva"
  *               email: "joao@example.com"
- *               isActive: true
  *               createdAt: "2023-01-01T00:00:00Z"
  *               updatedAt: "2023-01-01T00:00:00Z"
  *       404:
- *         description: Usuário não encontrado
+ *         description: Usuário não encontrado com o id fornecido
  *         content:
  *           application/json:
- *             example:
- *               error: "Usuário não encontrado"
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "NotFoundError"
+ *                 message:
+ *                   type: string
+ *                   example: "Não encontrado"
+ *                 details:
+ *                   type: string
+ *                   example: "Não foi possível encontrar o registro com o id fornecido"
  *       500:
  *         description: Erro interno do servidor
  */
@@ -279,22 +341,63 @@ class UserController {
  *           type: string
  *           format: uuid
  *         example: "550e8400-e29b-41d4-a716-446655440000"
+ *         description: ID único do usuário
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Maria Souza"
+ *               email:
+ *                 type: string
+ *                 example: "maria@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "SenhaForte456"
  *     responses:
  *       200:
  *         description: Usuário atualizado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *             example:
+ *               id: "550e8400-e29b-41d4-a716-446655440000"
+ *               name: "Maria Souza"
+ *               email: "maria@example.com"
+ *               createdAt: "2023-01-01T00:00:00Z"
+ *               updatedAt: "2023-01-01T00:00:00Z"
  *       404:
  *         description: Usuário não encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "NotFoundError"
+ *                 message:
+ *                   type: string
+ *                   example: "Não encontrado"
+ *                 details:
+ *                   type: string
+ *                   example: "Não foi possível encontrar o registro com o id fornecido"
  *       500:
  *         description: Erro interno no servidor
  */
   async update(req, res){
     try{
       const user_id = req.params.id;
-      const CreateUpdateUserDTO = new CreateUserDTO(req.body);
+      const updateUserDTO = new this.userDTO(req.body);
 
-      const user = await this.userService.updateUser(user_id, CreateUpdateUserDTO);
+      const user = await this.userService.updateUser(user_id, updateUserDTO);
       
-      res.status(201).json(user);
+      res.status(200).json(user);
     }catch(error){
       res.status(error.statusCode || 500).json({
         error: error.name || 'InternalServerError',
@@ -304,7 +407,7 @@ class UserController {
     }
   }
 
-  /**
+ /**
  * @swagger
  * /users/{id}:
  *   delete:
@@ -328,13 +431,17 @@ class UserController {
  *         content:
  *           application/json:
  *             example:
- *               error: "Usuário não encontrado"
+ *               error: "NotFoundError"
+ *               message: "Não encontrado"
+ *               details: "O usuário para ser removido não foi encontrado"
  *       500:
  *         description: Erro interno do servidor
  *         content:
  *           application/json:
  *             example:
- *               error: "Não foi possível excluir o usuário"
+ *               error: "ErroInterno"
+ *               message: "Não foi possível excluir o usuário"
+ *               details: "Detalhes adicionais do erro"
  */
   async delete(req,res){
     try{
@@ -343,7 +450,7 @@ class UserController {
       if (!user_id) throw new ValidationError('Campos obrigatórios faltando', 'A variavel id está vazia');
 
       const user = await this.userService.deleteUser(user_id);
-      res.status(204).json();
+      res.status(204).send();
     }catch(error){
       res.status(error.statusCode || 500).json({
         error: error.name || 'InternalServerError',

@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../../connection/sequelize');
-const PasswordService = require('../../../../application/security/passwordService');
 
 const User = sequelize.define('User', {
   id: {
@@ -26,16 +25,6 @@ const User = sequelize.define('User', {
   },
 }, {
   hooks: {
-    beforeCreate: async (user) => {
-      const passwordService = new PasswordService();
-      user.password = await passwordService.hashPassword(user.password);
-    },
-    beforeUpdate: async (user) => {
-      if (user.changed('password')) {
-        const passwordService = new PasswordService();
-        user.password = await passwordService.hashPassword(user.password);
-      }
-    }
   }
 });
 

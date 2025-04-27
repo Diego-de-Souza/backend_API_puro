@@ -2,7 +2,7 @@ const { ValidationError } = require('sequelize');
 const { isEmailValid, isPasswordStrong } = require('../infra/adapters/validations/userValidations');
 
 class User {
-  constructor(id, name, email, password) {
+  constructor(name, email, password) {
     this.name = name;
     this.email = email;
     this.password = password;
@@ -26,7 +26,6 @@ class User {
 
   toJSON() {
     return {
-      id: this.id,
       name: this.name,
       email: this.email
     };
